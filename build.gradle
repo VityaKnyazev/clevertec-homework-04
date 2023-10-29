@@ -16,14 +16,28 @@ repositories {
 }
 
 ext {
+
+    hibernateVersion = '6.3.1.Final'
+
+    slf4jApiVersion = '2.0.7'
+    logbackVersion = '1.4.11'
+
     junitVersion = '5.9.2'
     mockitoVersion = '5.6.0'
+
+    assertjVersion = '3.24.2'
 }
 
 dependencies {
+
+    implementation "org.hibernate.orm:hibernate-core:${hibernateVersion}"
+
+    implementation "org.slf4j:slf4j-api:$slf4jApiVersion"
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
-    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
