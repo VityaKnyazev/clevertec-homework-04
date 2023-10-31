@@ -9,6 +9,9 @@ version '1.0-SNAPSHOT'
 java {
     sourceCompatibility = JavaLanguageVersion.of(17)
     targetCompatibility = JavaLanguageVersion.of(17)
+
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
 }
 
 repositories {
