@@ -36,11 +36,13 @@ public interface ProductMapper {
      */
     default Product merge(Product product, ProductDto productDto) {
 
-        if (product != null) {
-            product.setName(productDto.name());
-            product.setDescription(productDto.description());
-            product.setPrice(productDto.price());
+        if (product == null || productDto == null) {
+            return null;
         }
+
+        product.setName(productDto.name());
+        product.setDescription(productDto.description());
+        product.setPrice(productDto.price());
 
         return product;
     }
