@@ -23,6 +23,7 @@ ext {
     h2Version = '2.2.224'
 
     hibernateVersion = '6.3.1.Final'
+    hibernateValidatorVersion = '8.0.1.Final'
 
     hikariCPVersion = '5.0.1'
 
@@ -37,10 +38,11 @@ ext {
 
     lombokMapstructBindingVersion = '0.2.0'
 
-    junitVersion = '5.9.2'
-    mockitoVersion = '5.6.0'
 
     assertjVersion = '3.24.2'
+
+    junitVersion = '5.9.2'
+    mockitoVersion = '5.6.0'
 }
 
 dependencies {
@@ -50,6 +52,7 @@ dependencies {
     implementation "com.zaxxer:HikariCP:${hikariCPVersion}"
 
     implementation "org.hibernate.orm:hibernate-core:${hibernateVersion}"
+    implementation "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
 
     implementation "org.yaml:snakeyaml:$snakeyamlVersion"
 
