@@ -19,11 +19,14 @@ repositories {
 }
 
 ext {
-
     hibernateValidatorVersion = '8.0.1.Final'
 
     slf4jApiVersion = '2.0.7'
     logbackVersion = '1.4.11'
+
+    mapStructVersion = '1.5.5.Final'
+
+    lombokMapstructBindingVersion = '0.2.0'
 
     assertjVersion = '3.24.2'
 
@@ -38,6 +41,10 @@ dependencies {
     implementation "org.slf4j:slf4j-api:${slf4jApiVersion}"
     implementation "ch.qos.logback:logback-classic:${logbackVersion}"
 
+    implementation "org.mapstruct:mapstruct:$mapStructVersion"
+    annotationProcessor "org.mapstruct:mapstruct-processor:$mapStructVersion"
+
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:$lombokMapstructBindingVersion"
 
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
