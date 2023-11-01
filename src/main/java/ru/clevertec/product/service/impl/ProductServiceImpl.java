@@ -4,6 +4,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.ValidatorFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import ru.clevertec.product.data.InfoProductDto;
 import ru.clevertec.product.data.ProductDto;
 import ru.clevertec.product.entity.Product;
@@ -13,13 +14,17 @@ import ru.clevertec.product.repository.ProductRepository;
 import ru.clevertec.product.service.ProductService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
-    private static final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+    private static final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+                                                             .configure()
+                                                             .messageInterpolator(new ParameterMessageInterpolator())
+                                                              .buildValidatorFactory();
 
     private final ProductMapper productMapperImpl;
     private final ProductRepository productRepository;

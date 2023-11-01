@@ -38,6 +38,7 @@ dependencies {
     implementation "org.slf4j:slf4j-api:${slf4jApiVersion}"
     implementation "ch.qos.logback:logback-classic:${logbackVersion}"
 
+
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
