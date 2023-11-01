@@ -29,7 +29,7 @@ public interface ProductService {
      * Создаёт новый продукт из DTO
      *
      * @param productDto DTO с информацией о создании
-     * @return идентификатор созданного продукта
+     * @return идентификатор созданного продукта или null
      */
     UUID create(ProductDto productDto);
 

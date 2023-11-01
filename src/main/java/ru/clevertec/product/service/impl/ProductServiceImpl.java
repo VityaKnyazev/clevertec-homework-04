@@ -24,7 +24,7 @@ public class ProductServiceImpl implements ProductService {
     private static final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
                                                              .configure()
                                                              .messageInterpolator(new ParameterMessageInterpolator())
-                                                              .buildValidatorFactory();
+                                                             .buildValidatorFactory();
 
     private final ProductMapper productMapperImpl;
     private final ProductRepository productRepository;
@@ -34,8 +34,8 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.findById(uuid)
                      .map(product -> productMapperImpl.toInfoProductDto(product))
-                     .filter(infoProductDto1 -> validatorFactory.getValidator()
-                                                                .validate(infoProductDto1, InfoProductDto.class)
+                     .filter(infoProductDto -> validatorFactory.getValidator()
+                                                                .validate(infoProductDto)
                                                                 .stream()
                                                                 .peek(constraint -> log.error(constraint.getMessage()))
                                                                 .collect(Collectors.toSet())
@@ -48,8 +48,8 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.findAll().stream()
                                           .map(product -> productMapperImpl.toInfoProductDto(product))
-                                          .filter(infoProductDto1 -> validatorFactory.getValidator()
-                                                  .validate(infoProductDto1, InfoProductDto.class)
+                                          .filter(infoProductDto -> validatorFactory.getValidator()
+                                                  .validate(infoProductDto)
                                                   .stream()
                                                   .peek(constraint -> log.error(constraint.getMessage()))
                                                   .collect(Collectors.toSet())
@@ -65,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (productDto != null) {
             if (validatorFactory.getValidator()
-                    .validate(productDto, ProductDto.class)
+                    .validate(productDto)
                     .stream()
                     .peek(constraint -> log.error(constraint.getMessage()))
                     .collect(Collectors.toSet())
@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (productDto != null && uuid != null) {
             if (validatorFactory.getValidator()
-                    .validate(productDto, ProductDto.class)
+                    .validate(productDto)
                     .stream()
                     .peek(constraint -> log.error(constraint.getMessage()))
                     .collect(Collectors.toSet())
