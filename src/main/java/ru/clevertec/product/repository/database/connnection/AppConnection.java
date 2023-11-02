@@ -2,6 +2,7 @@ package ru.clevertec.product.repository.database.connnection;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
@@ -14,6 +15,7 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class AppConnection {
 
     private static final String PROPERTIES = "application.yml";
@@ -68,8 +70,8 @@ public class AppConnection {
                 sessionFactory = metadata.getSessionFactoryBuilder().build();
 
             } catch (Exception e) {
-                //TODO change to logging
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
+
                 if (registry != null) {
                     StandardServiceRegistryBuilder.destroy(registry);
                 }
