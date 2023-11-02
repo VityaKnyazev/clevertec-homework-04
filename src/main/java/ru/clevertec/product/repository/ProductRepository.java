@@ -31,6 +31,7 @@ public interface ProductRepository {
      * @return сохранённый продукт
      * @throws IllegalArgumentException если переданный продукт null
      * @throws PersistenceException если переданный продукт не удалось сохранить в базу
+     *                              или обновить в базе
      */
     Product save(Product product) throws IllegalArgumentException, PersistenceException;
 

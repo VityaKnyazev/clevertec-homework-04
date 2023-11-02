@@ -27,6 +27,7 @@ public class InMemoryProductRepository implements ProductRepository {
     private static final String FIND_ALL_QUERY = "SELECT uuid, name, description, price, created FROM product";
 
     private static final String SEARCHING_ERROR = "Error when searching product(s) {}";
+    private static final String NULL_POINTER_PRODUCT_ERROR = "Given product is null";
 
     private SessionFactory sessionFactory;
 
@@ -68,6 +69,10 @@ public class InMemoryProductRepository implements ProductRepository {
     @Override
     public Product save(Product product) {
 
+        if (product == null) {
+            throw new IllegalArgumentException(NULL_POINTER_PRODUCT_ERROR);
+        }
+
         try (Session session = sessionFactory.getCurrentSession()) {
 
             boolean isInTransaction = session.getTransaction().isActive();
@@ -76,7 +81,19 @@ public class InMemoryProductRepository implements ProductRepository {
                 session.getTransaction().begin();
             }
 
-            session.persist(product);
+            if (product.getUuid() == null) {
+                session.persist(product);
+            } else {
+                findById(product.getUuid()).ifPresent(savedProduct -> {
+
+                    savedProduct.setName(product.getName());
+                    savedProduct.setDescription(product.getDescription());
+                    savedProduct.setPrice(product.getPrice());
+
+                    session.merge(savedProduct);
+                });
+            }
+
 
             if (!isInTransaction) {
                 session.getTransaction().commit();

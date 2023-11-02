@@ -1,6 +1,7 @@
 package ru.clevertec.product.repository.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import org.hibernate.HibernateException;
@@ -128,26 +129,78 @@ public class InMemoryProductRepositoryTest {
     @Test
     public void checkSaveShouldReturnSavedProduct() {
 
-        Product expectedSavingProduct = Product.builder()
-                                .uuid(new UUID(100L, 201L))
-                                .name("Соленье")
-                                .description("Сладость")
-                                .price(new BigDecimal(3.44f))
-                                .created(LocalDateTime.now())
-                                .build();
-
         Mockito.when(sessionFactoryMock.getCurrentSession()).thenReturn(sessionMock);
         Mockito.when(sessionMock.getTransaction()).thenReturn(transactionMock);
         Mockito.when(transactionMock.isActive()).thenReturn(false);
         Mockito.doNothing().when(transactionMock).begin();
         Mockito.doNothing().when(transactionMock).commit();
 
-        inMemoryProductRepository.save(expectedSavingProduct);
+        Product inputSavingProduct = Product.builder()
+                .name("Соленье")
+                .description("Сладость")
+                .price(new BigDecimal(3.44f))
+                .created(LocalDateTime.now())
+                .build();
+
+        inMemoryProductRepository.save(inputSavingProduct);
 
         Mockito.verify(sessionMock).persist(productArgumentCaptor.capture());
 
         assertThat(productArgumentCaptor.getValue())
-                                        .isEqualTo(expectedSavingProduct);
+                .isEqualTo(inputSavingProduct);
+    }
+
+    @Test
+    public void checkSaveShouldReturnMergedProduct() {
+
+        Product expectedSavedProduct = Product.builder()
+                .uuid(new UUID(100L, 201L))
+                .name("Соленье")
+                .description("Сладость")
+                .price(new BigDecimal(3.44f))
+                .created(LocalDateTime.now())
+                .build();
+
+        Mockito.when(sessionFactoryMock.getCurrentSession()).thenReturn(sessionMock)
+                .thenReturn(sessionMock);
+        Mockito.when(sessionMock.getTransaction()).thenReturn(transactionMock);
+        Mockito.when(transactionMock.isActive()).thenReturn(false);
+        Mockito.doNothing().when(transactionMock).begin();
+
+        Mockito.when(sessionMock.find(Mockito.any(Class.class), Mockito.any(UUID.class)))
+                .thenReturn(expectedSavedProduct);
+
+        Product inputMergingProduct = Product.builder()
+                .uuid(new UUID(100L, 201L))
+                .name("Печенье")
+                .description("Сладкие товары")
+                .price(new BigDecimal(4.48f))
+                .created(LocalDateTime.now())
+                .build();
+
+        Product actualProduct = inMemoryProductRepository.save(inputMergingProduct);
+
+        Mockito.verify(sessionMock).merge(productArgumentCaptor.capture());
+
+        assertAll(
+                () -> assertThat(productArgumentCaptor.getValue().getName()).isEqualTo(inputMergingProduct.getName()),
+                () -> assertThat(productArgumentCaptor.getValue().getDescription())
+                        .isEqualTo(inputMergingProduct.getDescription()),
+                () -> assertThat(productArgumentCaptor.getValue().getPrice())
+                        .isEqualByComparingTo(inputMergingProduct.getPrice()),
+                () -> assertThat(actualProduct).isEqualTo(inputMergingProduct)
+        );
+
+
+    }
+
+    @Test
+    public void checkSaveShouldThrowIllegalArgumentExceptionWhenNullProductGiven() {
+
+        Product inputProduct = null;
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> inMemoryProductRepository.save(inputProduct));
     }
 
     @Test
@@ -162,7 +215,7 @@ public class InMemoryProductRepositoryTest {
                 .build();
 
         Mockito.when(sessionFactoryMock.getCurrentSession()).thenReturn(sessionMock)
-                                                            .thenReturn(sessionMock);
+                .thenReturn(sessionMock);
         Mockito.when(sessionMock.find(Mockito.any(Class.class), Mockito.any(UUID.class)))
                 .thenReturn(expectedDeletingProduct);
 
