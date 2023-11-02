@@ -14,8 +14,8 @@ public record ProductDto(
          * {@link ru.clevertec.product.entity.Product}
          */
         @NotNull(message = "Product name must be not null")
-        @Pattern(regexp = "[А-Яа-я\\s]{5,10}", message = "Product name must contains " +
-                                                         "from 5 to 10 russian symbols or spaces")
+        @Pattern(regexp = "[А-Яа-я\\s]{5,10}", message = "Product name must contains "
+                                                + "from 5 to 10 russian symbols or spaces")
         String name,
 
 

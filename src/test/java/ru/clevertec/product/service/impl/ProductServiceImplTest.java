@@ -1,4 +1,4 @@
-package ru.clevertec.product;
+package ru.clevertec.product.service.impl;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

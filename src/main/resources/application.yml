@@ -1,0 +1,16 @@
+# App settings file
+db:
+   driverClassName: org.h2.Driver
+   jdbcUrl: jdbc:h2:tcp://localhost:9092/~/shop
+   username:
+   password: admin
+   maxPoolSize: 3
+   connectionTimeout: 3000
+hibernate:
+   schema: none
+   sessionContext: thread
+   dialect: org.hibernate.dialect.H2Dialect
+   showSql: true
+   transactionIsolationValue: 2
+liquibase:
+   changelogFile: liquibase/db-shop-changelog.xml
