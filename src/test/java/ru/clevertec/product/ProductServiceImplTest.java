@@ -1,18 +1,11 @@
 package ru.clevertec.product;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.clevertec.product.data.InfoProductDto;
 import ru.clevertec.product.data.ProductDto;
@@ -31,6 +24,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceImplTest {
 
@@ -38,6 +35,9 @@ public class ProductServiceImplTest {
     private ProductMapper productMapperSpy = new ProductMapperImpl();
     @Mock
     private ProductRepository productRepositoryMock;
+
+    @Captor
+    private ArgumentCaptor<Product> productArgumentCaptor;
 
     @InjectMocks
     private ProductServiceImpl productServiceImpl;
@@ -140,7 +140,11 @@ public class ProductServiceImplTest {
 
         UUID actualUUID = productServiceImpl.create(inputProductDTO);
 
-        assertThat(actualUUID).isNotNull();
+        assertAll(
+                () -> assertThat(actualUUID).isNotNull(),
+                () -> assertThat(actualUUID).isEqualTo(new UUID(32L, 25L))
+        );
+
 
     }
 
@@ -151,6 +155,56 @@ public class ProductServiceImplTest {
         UUID actualUUID = productServiceImpl.create(invalidProductDto);
 
         assertThat(actualUUID).isNull();
+    }
+
+    @Test
+    public void checkUpdateShouldUpdateExistingProduct() {
+
+        UUID inputUuid = new UUID(245L, 324L);
+        ProductDto inputProductDto = ProductDto.builder()
+                .name("Печенье")
+                .description("Сладости мучные")
+                .price(new BigDecimal(5.22f))
+                .build();
+
+        productServiceImpl.update(inputUuid, inputProductDto);
+
+        Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
+
+        assertAll(
+                () -> assertThat(productArgumentCaptor.getValue()).isNotNull(),
+                () -> assertThat(productArgumentCaptor.getValue()).isInstanceOf(Product.class),
+                () -> assertThat(productArgumentCaptor.getValue().getUuid()).isEqualTo(inputUuid)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getNegativeInputForUpdate")
+    public void checkUpdateShouldNotUpdateExistingProduct(UUID inputUUID, ProductDto inputProductDTO) {
+
+        productServiceImpl.update(inputUUID, inputProductDTO);
+
+        Mockito.verify(productRepositoryMock, Mockito.never()).save(Mockito.any(Product.class));
+
+    }
+
+    @Test
+    public void checkDeleteShouldDeleteExistingProduct() {
+
+        ArgumentCaptor<UUID> uuidArgumentCaptor = ArgumentCaptor.forClass(UUID.class);
+
+
+        UUID inputUUUID = UUID.randomUUID();
+
+        productServiceImpl.delete(inputUUUID);
+
+
+        Mockito.verify(productRepositoryMock).delete(uuidArgumentCaptor.capture());
+
+        assertAll(
+                () -> assertThat(uuidArgumentCaptor.getValue()).isNotNull(),
+                () -> assertThat(uuidArgumentCaptor.getValue()).isEqualTo(inputUUUID)
+        );
     }
 
     private static Stream<ProductDto> getNegativeInputForCreate() {
@@ -169,8 +223,55 @@ public class ProductServiceImplTest {
                 ProductDto.builder()
                         .name("Варенье")
                         .description("Мучные конфеты")
-                        .price(new BigDecimal(0.00f))
+                        .price(new BigDecimal("0.00"))
                         .build()
+        );
+    }
+
+    private static Stream<Arguments> getNegativeInputForUpdate() {
+        return Stream.of(
+                Arguments.of(null, null),
+                Arguments.of(null, ProductDto.builder()
+                        .name("Варенье")
+                        .description("Мучные конфеты")
+                        .price(new BigDecimal(5.25f))
+                        .build()),
+                Arguments.of(UUID.randomUUID(), null),
+
+                Arguments.of(UUID.randomUUID(), ProductDto.builder()
+                        .name("Суп")
+                        .description("Мучные конфеты")
+                        .price(new BigDecimal(5.25f))
+                        .build()),
+                Arguments.of(UUID.randomUUID(), ProductDto.builder()
+                        .name("Суповой набор")
+                        .description("Мучные конфеты")
+                        .price(new BigDecimal(5.25f))
+                        .build()),
+                Arguments.of(UUID.randomUUID(), ProductDto.builder()
+                        .name("Варенье")
+                        .description("Конфетное")
+                        .price(new BigDecimal(5.25f))
+                        .build()),
+                Arguments.of(UUID.randomUUID(), ProductDto.builder()
+                        .name("Варенье")
+                        .description("Конфетная страна государство Гренудийское")
+                        .price(new BigDecimal(5.25f))
+                        .build()),
+                Arguments.of(UUID.randomUUID(), ProductDto.builder()
+                        .name("Варенье")
+                        .description("Мучные конфеты")
+                        .build()),
+                Arguments.of(UUID.randomUUID(), ProductDto.builder()
+                        .name("Варенье")
+                        .description("Мучные конфеты")
+                        .price(new BigDecimal(0.00f))
+                        .build()),
+                Arguments.of(UUID.randomUUID(), ProductDto.builder()
+                        .name("Варенье")
+                        .description("Мучные конфеты")
+                        .price(new BigDecimal(-0.000000000001f))
+                        .build())
         );
     }
 
