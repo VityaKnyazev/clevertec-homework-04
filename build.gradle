@@ -19,6 +19,7 @@ repositories {
 }
 
 ext {
+
     hibernateVersion = '6.3.1.Final'
     hibernateValidatorVersion = '8.0.1.Final'
 
@@ -36,7 +37,6 @@ ext {
 }
 
 dependencies {
-
     implementation "org.hibernate.orm:hibernate-core:${hibernateVersion}"
     implementation "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
 
