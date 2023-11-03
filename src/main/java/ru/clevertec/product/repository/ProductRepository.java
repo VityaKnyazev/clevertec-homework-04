@@ -1,5 +1,6 @@
 package ru.clevertec.product.repository;
 
+import jakarta.persistence.PersistenceException;
 import ru.clevertec.product.entity.Product;
 
 import java.util.List;
@@ -29,13 +30,18 @@ public interface ProductRepository {
      * @param product сохраняемый продукт
      * @return сохранённый продукт
      * @throws IllegalArgumentException если переданный продукт null
+     * @throws PersistenceException если переданный продукт не удалось сохранить в базу
+     *                              или обновить в базе
      */
-    Product save(Product product);
+    Product save(Product product) throws IllegalArgumentException, PersistenceException;
 
     /**
      * Удаляет продукт из памяти по идентификатору
      *
      * @param uuid идентификатор продукта
+     *
+     * @throws PersistenceException если найденный продукт по переданному uuid
+     *         не удалось удалить из базы
      */
     void delete(UUID uuid);
 }

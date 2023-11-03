@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id "io.freefair.lombok" version "6.5.1"
+    id 'org.liquibase.gradle' version '2.2.0'
 }
 
 group 'ru.clevertec'
@@ -9,6 +10,9 @@ version '1.0-SNAPSHOT'
 java {
     sourceCompatibility = JavaLanguageVersion.of(17)
     targetCompatibility = JavaLanguageVersion.of(17)
+
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
 }
 
 repositories {
@@ -16,16 +20,58 @@ repositories {
 }
 
 ext {
+    h2Version = '2.2.224'
+
+    hibernateVersion = '6.3.1.Final'
+    hibernateValidatorVersion = '8.0.1.Final'
+
+    hikariCPVersion = '5.0.1'
+
+    snakeyamlVersion = '2.1'
+
+    liquibaseVersion = '4.24.0'
+
+    slf4jApiVersion = '2.0.7'
+    logbackVersion = '1.4.11'
+
+    mapStructVersion = '1.5.5.Final'
+
+    lombokMapstructBindingVersion = '0.2.0'
+
+    assertjVersion = '3.24.2'
+
     junitVersion = '5.9.2'
     mockitoVersion = '5.6.0'
 }
 
 dependencies {
+    implementation "org.hibernate.orm:hibernate-core:${hibernateVersion}"
+    implementation "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
+
+    implementation "com.h2database:h2:${h2Version}"
+
+    implementation "com.zaxxer:HikariCP:${hikariCPVersion}"
+
+    implementation "org.yaml:snakeyaml:$snakeyamlVersion"
+
+    implementation "org.liquibase:liquibase-core:$liquibaseVersion"
+
+    implementation "org.slf4j:slf4j-api:$slf4jApiVersion"
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+
+    implementation "org.mapstruct:mapstruct:$mapStructVersion"
+    annotationProcessor "org.mapstruct:mapstruct-processor:$mapStructVersion"
+
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:$lombokMapstructBindingVersion"
+
+
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
-    testImplementation 'org.assertj:assertj-core:3.24.2'
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
 }
 
 test {
