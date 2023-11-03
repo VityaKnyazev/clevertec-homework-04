@@ -34,11 +34,10 @@ public class Main {
 
         ProductService productService = buildProductService(connection);
 
-        Session session = null;
         Transaction transaction = null;
 
-        try {
-            session = connection.getSessionFactory().getCurrentSession();
+        try(Session session = connection.getSessionFactory().getCurrentSession();) {
+
 
             transaction = session.getTransaction();
             transaction.begin();
@@ -56,7 +55,7 @@ public class Main {
             System.out.printf("Product with uuid=%s got from db %s%n", uuid, infoProductDto);
 
             productService.update(uuid, ProductDto.builder()
-                    .name("Сверло D5")
+                    .name("Сверло ДП")
                     .description("Инструмент для ремонта")
                     .price(new BigDecimal(8.56))
                     .build());
@@ -75,12 +74,6 @@ public class Main {
             }
 
             System.out.println(e.getMessage());
-        } finally {
-
-            if (session != null) {
-                session.close();
-            }
-
         }
 
         AppConnection.shutdown();
