@@ -1,6 +1,12 @@
 package ru.clevertec.product;
 
+import jakarta.persistence.PersistenceException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import ru.clevertec.product.data.InfoProductDto;
 import ru.clevertec.product.data.ProductDto;
+import ru.clevertec.product.entity.Product;
+import ru.clevertec.product.exception.ProductNotFoundException;
 import ru.clevertec.product.mapper.ProductMapper;
 import ru.clevertec.product.mapper.ProductMapperImpl;
 import ru.clevertec.product.repository.ProductRepository;
@@ -28,13 +34,54 @@ public class Main {
 
         ProductService productService = buildProductService(connection);
 
-        UUID uuid = productService.create(ProductDto.builder()
-                .name("Свекла")
-                .description("Овощи всесезонные")
-                .price(new BigDecimal(5.21f))
-                .build());
+        Session session = null;
+        Transaction transaction = null;
 
-        System.out.printf("Product with uuid=%s created %n", uuid);
+        try {
+            session = connection.getSessionFactory().getCurrentSession();
+
+            transaction = session.getTransaction();
+            transaction.begin();
+
+            UUID uuid = productService.create(ProductDto.builder()
+                    .name("Свекла")
+                    .description("Овощи всесезонные")
+                    .price(new BigDecimal(5.21f))
+                    .build());
+
+            System.out.printf("Product with uuid=%s created%n", uuid);
+
+            InfoProductDto infoProductDto = productService.get(uuid);
+
+            System.out.printf("Product with uuid=%s got from db %s%n", uuid, infoProductDto);
+
+            productService.update(uuid, ProductDto.builder()
+                    .name("Сверло D5")
+                    .description("Инструмент для ремонта")
+                    .price(new BigDecimal(8.56))
+                    .build());
+
+            System.out.printf("Product with uuid=%s updated in db%n", uuid);
+
+            productService.delete(uuid);
+
+            System.out.printf("Product with uuid=%s deleted from db%n", uuid);
+
+            session.getTransaction().commit();
+        } catch (PersistenceException | IllegalArgumentException | ProductNotFoundException e) {
+
+            if (transaction != null && transaction.getRollbackOnly()) {
+                transaction.rollback();
+            }
+
+            System.out.println(e.getMessage());
+        } finally {
+
+            if (session != null) {
+                session.close();
+            }
+
+        }
 
         AppConnection.shutdown();
         h2DatabaseService.stop();

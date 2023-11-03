@@ -35,7 +35,8 @@ public class InMemoryProductRepository implements ProductRepository {
     public Optional<Product> findById(UUID uuid) {
         Optional<Product> product = Optional.empty();
 
-        try (Session session = sessionFactory.getCurrentSession()) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
 
             product = Optional.ofNullable(session.find(Product.class, uuid));
 
@@ -52,11 +53,12 @@ public class InMemoryProductRepository implements ProductRepository {
 
         List<Product> products = new ArrayList<>();
 
-        try (Session session = sessionFactory.getCurrentSession()) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
 
             products = session.createNativeQuery(FIND_ALL_QUERY, Product.class)
-                               .setReadOnly(true)
-                               .list();
+                    .setReadOnly(true)
+                    .list();
 
         } catch (HibernateException e) {
             log.error(SEARCHING_ERROR, e.getMessage(), e);
@@ -73,32 +75,29 @@ public class InMemoryProductRepository implements ProductRepository {
             throw new IllegalArgumentException(NULL_POINTER_PRODUCT_ERROR);
         }
 
-        try (Session session = sessionFactory.getCurrentSession()) {
+        Session session = sessionFactory.getCurrentSession();
 
-            boolean isInTransaction = session.getTransaction().isActive();
+        boolean isInTransaction = session.getTransaction().isActive();
 
-            if (!isInTransaction) {
-                session.getTransaction().begin();
-            }
+        if (!isInTransaction) {
+            session.getTransaction().begin();
+        }
 
-            if (product.getUuid() == null) {
-                session.persist(product);
-            } else {
-                findById(product.getUuid()).ifPresent(savedProduct -> {
+        if (product.getUuid() == null) {
+            session.persist(product);
+        } else {
+            findById(product.getUuid()).ifPresent(savedProduct -> {
 
-                    savedProduct.setName(product.getName());
-                    savedProduct.setDescription(product.getDescription());
-                    savedProduct.setPrice(product.getPrice());
+                savedProduct.setName(product.getName());
+                savedProduct.setDescription(product.getDescription());
+                savedProduct.setPrice(product.getPrice());
 
-                    session.merge(savedProduct);
-                });
-            }
+                session.merge(savedProduct);
+            });
+        }
 
-
-            if (!isInTransaction) {
-                session.getTransaction().commit();
-            }
-
+        if (!isInTransaction) {
+            session.getTransaction().commit();
         }
 
         return product;
@@ -110,21 +109,20 @@ public class InMemoryProductRepository implements ProductRepository {
 
         findById(uuid).ifPresent(product -> {
 
-            try (Session session = sessionFactory.getCurrentSession()) {
+            Session session = sessionFactory.getCurrentSession();
 
-                boolean isInTransaction = session.getTransaction().isActive();
+            boolean isInTransaction = session.getTransaction().isActive();
 
-                if (!isInTransaction) {
-                    session.getTransaction().begin();
-                }
-
-                session.remove(product);
-
-                if (!isInTransaction) {
-                    session.getTransaction().commit();
-                }
-
+            if (!isInTransaction) {
+                session.getTransaction().begin();
             }
+
+            session.remove(product);
+
+            if (!isInTransaction) {
+                session.getTransaction().commit();
+            }
+
 
         });
 
